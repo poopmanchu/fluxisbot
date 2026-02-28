@@ -13,8 +13,9 @@ VOWELS = set("AEIOU")  # Y is treated as a consonant (adjust if desired)
 ALPHA_RE = re.compile(r"^[A-Z]+$")
 
 def load_words(path: str) -> List[str]:
-    """Load unique, uppercase alphabetic words (skip hyphens/apostrophes/etc.)."""
-    words: Set[str] = set()
+    """Load unique, uppercase alphabetic words in first-seen file order."""
+    seen: Set[str] = set()
+    words: List[str] = []
     with open(path, "r", encoding="utf-8") as f:
         for line in f:
             w = line.strip().upper()
@@ -22,8 +23,11 @@ def load_words(path: str) -> List[str]:
                 continue
             if not ALPHA_RE.match(w):
                 continue
-            words.add(w)
-    return list(words)
+            if w in seen:
+                continue
+            seen.add(w)
+            words.append(w)
+    return words
 
 def count_vowels(w: str) -> int:
     return sum(ch in VOWELS for ch in w)
